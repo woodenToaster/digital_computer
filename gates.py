@@ -55,6 +55,104 @@ def one_of_eight_decoder(input_str):
     return outputs.index(1)
 
 
+class RSFlipFlop():
+
+    def __init__(self):
+        self.q = 0
+        self.not_q = 1
+
+    def send(self, r=0, s=0):
+        if s == 1:
+            self.q = 1
+            self.not_q = 0
+        if r == 1:
+            self.q = 0
+            self.not_q = 1
+
+
+class ClockedDFlipFlop():
+
+    def __init__(self):
+        self.rs = RSFlipFlop()
+
+    def send(self, d=0, clock=0):
+        self.rs.send(s=and_gate(d, clock), r=and_gate(not_gate(d), clock))
+
+    def q(self):
+        return self.rs.q
+
+    def not_q(self):
+        return self.rs.not_q
+
+
+class Register8():
+
+    def __init__(self):
+        self.dff0 = ClockedDFlipFlop()
+        self.dff1 = ClockedDFlipFlop()
+        self.dff2 = ClockedDFlipFlop()
+        self.dff3 = ClockedDFlipFlop()
+        self.dff4 = ClockedDFlipFlop()
+        self.dff5 = ClockedDFlipFlop()
+        self.dff6 = ClockedDFlipFlop()
+        self.dff7 = ClockedDFlipFlop()
+        self.word = [0] * 8
+
+    # TODO: clear
+    def send(self, word8, load=0, enable=0, clear=0, clock=0):
+        x7, x6, x5, x4, x3, x2, x1, x0 = word8
+
+        self.dff0.send(
+            d=or_gate(and_gate(load, x0), and_gate(not_gate(load), self.dff0.q())),
+            clock=clock
+        )
+        y0 = self.dff0.q()
+
+        self.dff1.send(
+            d=or_gate(and_gate(load, x1), and_gate(not_gate(load), self.dff1.q())),
+            clock=clock
+        )
+        y1 = self.dff1.q()
+
+        self.dff2.send(
+            d=or_gate(and_gate(load, x2), and_gate(not_gate(load), self.dff2.q())),
+            clock=clock
+        )
+        y2 = self.dff2.q()
+
+        self.dff3.send(
+            d=or_gate(and_gate(load, x3), and_gate(not_gate(load), self.dff3.q())),
+            clock=clock
+        )
+        y3 = self.dff3.q()
+
+        self.dff4.send(
+            d=or_gate(and_gate(load, x4), and_gate(not_gate(load), self.dff4.q())),
+            clock=clock
+        )
+        y4 = self.dff4.q()
+
+        self.dff5.send(
+            d=or_gate(and_gate(load, x5), and_gate(not_gate(load), self.dff5.q())),
+            clock=clock
+        )
+        y5 = self.dff5.q()
+
+        self.dff6.send(
+            d=or_gate(and_gate(load, x6), and_gate(not_gate(load), self.dff6.q())),
+            clock=clock
+        )
+        y6 = self.dff6.q()
+
+        self.dff7.send(
+            d=or_gate(and_gate(load, x7), and_gate(not_gate(load), self.dff7.q())),
+            clock=clock
+        )
+        y7 = self.dff7.q()
+
+        self.word = [y7, y6, y5, y4, y3, y2, y1, y0]  # if enable else None
+
+
 # ALU components
 
 def half_adder(a, b):
