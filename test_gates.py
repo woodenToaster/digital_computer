@@ -86,22 +86,41 @@ class TestGates(unittest.TestCase):
     def test_clocked_d_flipflop(self):
         dff = gates.ClockedDFlipFlop()
         dff.send(d=1, clock=0)
-        self.assertEqual(dff.q(), 0)
-        self.assertEqual(dff.not_q(), 1)
+        self.assertEqual(dff.q, 0)
+        self.assertEqual(dff.not_q, 1)
 
         dff.send(d=1, clock=1)
-        self.assertEqual(dff.q(), 1)
-        self.assertEqual(dff.not_q(), 0)
+        self.assertEqual(dff.q, 1)
+        self.assertEqual(dff.not_q, 0)
 
         dff.send(d=0, clock=1)
-        self.assertEqual(dff.q(), 0)
-        self.assertEqual(dff.not_q(), 1)
+        self.assertEqual(dff.q, 0)
+        self.assertEqual(dff.not_q, 1)
+
+    def test_jk_flipflop(self):
+        jkff = gates.JKFlipFlop()
+        self.assertEqual(jkff.q, 0)
+        self.assertEqual(jkff.not_q, 1)
+
+        jkff.send(j=1, k=0)
+        self.assertEqual(jkff.q, 0)
+        self.assertEqual(jkff.not_q, 1)
+
+        jkff.send(j=1, k=0, clock=1)
+        self.assertEqual(jkff.q, 1)
+        self.assertEqual(jkff.not_q, 0)
+
+        jkff.send(j=1, k=1, clock=1)
+        self.assertEqual(jkff.q, 0)
+        self.assertEqual(jkff.not_q, 1)
+
+        jkff.send(j=0, k=0, clock=1)
+        self.assertEqual(jkff.q, 0)
+        self.assertEqual(jkff.not_q, 1)
 
     def test_register_8(self):
         zero = [0] * 8
         r8 = gates.Register8()
-        r8.send(zero, enable=1, clock=1)
-        self.assertListEqual(r8.word, zero)
 
         one = [0] * 7 + [1]
         r8.send(one, load=1)

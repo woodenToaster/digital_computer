@@ -73,16 +73,38 @@ class RSFlipFlop():
 class ClockedDFlipFlop():
 
     def __init__(self):
-        self.rs = RSFlipFlop()
+        self._rs = RSFlipFlop()
 
     def send(self, d=0, clock=0):
-        self.rs.send(s=and_gate(d, clock), r=and_gate(not_gate(d), clock))
+        self._rs.send(s=and_gate(d, clock), r=and_gate(not_gate(d), clock))
 
+    @property
     def q(self):
-        return self.rs.q
+        return self._rs.q
 
+    @property
     def not_q(self):
-        return self.rs.not_q
+        return self._rs.not_q
+
+
+class JKFlipFlop():
+
+    def __init__(self):
+        self._rs = RSFlipFlop()
+
+    def send(self, j=0, k=0, clock=0):
+        s = and_gate(clock, j, self._rs.not_q)
+        r = and_gate(clock, k, self._rs.q)
+
+        self._rs.send(r=r, s=s)
+
+    @property
+    def q(self):
+        return self._rs.q
+
+    @property
+    def not_q(self):
+        return self._rs.not_q
 
 
 class Register8():
@@ -98,59 +120,73 @@ class Register8():
         self.dff7 = ClockedDFlipFlop()
         self.word = [0] * 8
 
-    # TODO: clear
-    def send(self, word8, load=0, enable=0, clear=0, clock=0):
+    # TODO: enable
+    def send(self, word8, load=0, clear=0, clock=0):
+        if clear and clock:
+            self.word = [0] * 8
+            return
+
         x7, x6, x5, x4, x3, x2, x1, x0 = word8
 
         self.dff0.send(
-            d=or_gate(and_gate(load, x0), and_gate(not_gate(load), self.dff0.q())),
+            d=or_gate(and_gate(load, x0), and_gate(not_gate(load), self.dff0.q)),
             clock=clock
         )
-        y0 = self.dff0.q()
+        y0 = self.dff0.q
 
         self.dff1.send(
-            d=or_gate(and_gate(load, x1), and_gate(not_gate(load), self.dff1.q())),
+            d=or_gate(and_gate(load, x1), and_gate(not_gate(load), self.dff1.q)),
             clock=clock
         )
-        y1 = self.dff1.q()
+        y1 = self.dff1.q
 
         self.dff2.send(
-            d=or_gate(and_gate(load, x2), and_gate(not_gate(load), self.dff2.q())),
+            d=or_gate(and_gate(load, x2), and_gate(not_gate(load), self.dff2.q)),
             clock=clock
         )
-        y2 = self.dff2.q()
+        y2 = self.dff2.q
 
         self.dff3.send(
-            d=or_gate(and_gate(load, x3), and_gate(not_gate(load), self.dff3.q())),
+            d=or_gate(and_gate(load, x3), and_gate(not_gate(load), self.dff3.q)),
             clock=clock
         )
-        y3 = self.dff3.q()
+        y3 = self.dff3.q
 
         self.dff4.send(
-            d=or_gate(and_gate(load, x4), and_gate(not_gate(load), self.dff4.q())),
+            d=or_gate(and_gate(load, x4), and_gate(not_gate(load), self.dff4.q)),
             clock=clock
         )
-        y4 = self.dff4.q()
+        y4 = self.dff4.q
 
         self.dff5.send(
-            d=or_gate(and_gate(load, x5), and_gate(not_gate(load), self.dff5.q())),
+            d=or_gate(and_gate(load, x5), and_gate(not_gate(load), self.dff5.q)),
             clock=clock
         )
-        y5 = self.dff5.q()
+        y5 = self.dff5.q
 
         self.dff6.send(
-            d=or_gate(and_gate(load, x6), and_gate(not_gate(load), self.dff6.q())),
+            d=or_gate(and_gate(load, x6), and_gate(not_gate(load), self.dff6.q)),
             clock=clock
         )
-        y6 = self.dff6.q()
+        y6 = self.dff6.q
 
         self.dff7.send(
-            d=or_gate(and_gate(load, x7), and_gate(not_gate(load), self.dff7.q())),
+            d=or_gate(and_gate(load, x7), and_gate(not_gate(load), self.dff7.q)),
             clock=clock
         )
-        y7 = self.dff7.q()
+        y7 = self.dff7.q
 
-        self.word = [y7, y6, y5, y4, y3, y2, y1, y0]  # if enable else None
+        self.word = [y7, y6, y5, y4, y3, y2, y1, y0]
+
+
+class ControlledSynchronousCounter():
+
+    def __init__(self):
+        pass
+
+
+class ProgramCounter8(Register8):
+    pass
 
 
 # ALU components
